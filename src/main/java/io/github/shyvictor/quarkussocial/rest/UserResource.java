@@ -2,6 +2,7 @@ package io.github.shyvictor.quarkussocial.rest;
 
 import io.github.shyvictor.quarkussocial.domain.model.User;
 import io.github.shyvictor.quarkussocial.rest.dto.CreateUserRequest;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -20,11 +21,40 @@ public class UserResource {
         user.persist();
         return Response.ok(user).build();
     }
+    @GET
+    public Response listAllUsers(){
+        final PanacheQuery<User> panacheQuery = User.findAll();
+        return Response.ok(panacheQuery.list()).build();
+    }
 
-    private void validateCreateUserRequest(CreateUserRequest userRequest) {
-        if (userRequest.getName() == null || userRequest.getAge() == null)
+    @DELETE @Transactional
+    @Path("{id}")
+    public Response deleteUser(@PathParam("id") Long id){
+        User user = User.findById(id);
+        validateUserExistence(user);
+        user.delete();
+        return Response.ok().build();
+    }
+
+    @PUT @Path("{id}") @Transactional
+    public Response updateUser(@PathParam("id") Long id, CreateUserRequest createUserRequest) {
+        final User user = User.findById(id);
+        validateUserExistence(user);
+        validateCreateUserRequest(createUserRequest);
+        user.setAge(createUserRequest.getAge());
+        user.setName(createUserRequest.getName());
+        return Response.ok().build();
+    }
+    private void validateUserExistence(User user){
+        if (user == null){
+            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build());
+        }
+    }
+    private void validateCreateUserRequest(CreateUserRequest createUserRequest) {
+        if (createUserRequest.getName() == null || createUserRequest.getAge() == null)
                 throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).build());
 
     }
+
 
 }
