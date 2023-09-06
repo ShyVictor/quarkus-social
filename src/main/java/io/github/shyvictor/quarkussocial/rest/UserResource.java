@@ -37,7 +37,8 @@ public class UserResource {
         user.setName(userRequest.getName());
         user.setAge(userRequest.getAge());
         userRepository.persist(user);
-        return Response.ok(user).build();
+        return Response.status(Response.Status.CREATED.getStatusCode()).
+                entity(user).build();
     }
 
     @GET
@@ -53,7 +54,7 @@ public class UserResource {
         User user = userRepository.findById(id);
         validateUserExistence(user);
         userRepository.delete(user);
-        return Response.ok().build();
+        return Response.noContent().build();
     }
 
     @PUT
