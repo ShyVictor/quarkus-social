@@ -1,6 +1,5 @@
 package io.github.shyvictor.quarkussocial.domain.model;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +7,7 @@ import lombok.Setter;
 
 @Entity @Table(name="users")
 @Getter @Setter
-public class User extends PanacheEntityBase {
+public class User {
 
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
