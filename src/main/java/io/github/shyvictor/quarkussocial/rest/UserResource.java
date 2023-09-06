@@ -1,11 +1,9 @@
 package io.github.shyvictor.quarkussocial.rest;
 
+import io.github.shyvictor.quarkussocial.domain.model.User;
 import io.github.shyvictor.quarkussocial.rest.dto.CreateUserRequest;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -13,9 +11,20 @@ import jakarta.ws.rs.core.Response;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class UserResource {
-    @POST
+    @POST @Transactional
     public Response createUser(CreateUserRequest userRequest){
-        return Response.ok(userRequest).build();
+        validateCreateUserRequest(userRequest);
+        User user = new User();
+        user.setName(userRequest.getName());
+        user.setAge(userRequest.getAge());
+        user.persist();
+        return Response.ok(user).build();
+    }
+
+    private void validateCreateUserRequest(CreateUserRequest userRequest) {
+        if (userRequest.getName() == null || userRequest.getAge() == null)
+                throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).build());
+
     }
 
 }
